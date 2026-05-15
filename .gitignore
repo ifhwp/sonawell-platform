@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# Local secrets (defense-in-depth — each app should also gitignore its own)
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Node (defense-in-depth — app-level .gitignore is authoritative)
+**/node_modules/
+**/.next/
+**/out/
+**/.vercel/
+**/coverage/
+
+# Logs
+*.log
+npm-debug.log*

@@ -28,15 +28,15 @@ export default async function ResultPage({
 
   return (
     <article className="flex flex-1 flex-col">
-      <p className="text-xs uppercase tracking-[0.18em] text-coral font-semibold mb-3">
+      <p className="text-xs uppercase tracking-[0.18em] text-grape font-semibold mb-3">
         Your result
       </p>
-      <h1 className="text-3xl sm:text-4xl font-semibold text-burgundy leading-tight">
+      <h1 className="text-3xl sm:text-4xl font-semibold text-ink leading-tight">
         {content.headline}
       </h1>
       <p className="mt-2 text-sm text-muted">{ARCHETYPE_LABELS[archetype]}</p>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card px-5 py-4">
+      <div className="mt-6 rounded-2xl border border-card-border bg-card px-5 py-4">
         <p className="text-sm text-ink/80 leading-relaxed">
           {ARCHETYPE_SUMMARIES[archetype]}
         </p>
@@ -74,7 +74,7 @@ export default async function ResultPage({
         </p>
         <Link
           href="/"
-          className="text-sm text-burgundy hover:text-burgundy-700 underline"
+          className="text-sm text-green hover:text-green-700 underline"
         >
           Take the quiz again
         </Link>
@@ -86,7 +86,7 @@ export default async function ResultPage({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="text-xl font-semibold text-burgundy mb-4">{title}</h2>
+      <h2 className="text-xl font-semibold text-ink mb-4">{title}</h2>
       {children}
     </section>
   );

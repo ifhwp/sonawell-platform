@@ -64,13 +64,13 @@ export function EmailGateClient() {
   if (!hasAnswers) {
     return (
       <section className="flex flex-1 flex-col justify-center text-center">
-        <h1 className="text-2xl font-semibold text-burgundy mb-3">No quiz answers found</h1>
+        <h1 className="text-2xl font-semibold text-ink mb-3">No quiz answers found</h1>
         <p className="text-base text-ink/80 mb-6">
           Looks like your quiz session was reset. Start over to see your result.
         </p>
         <Link
           href="/"
-          className="inline-flex self-center items-center justify-center rounded-full bg-burgundy hover:bg-burgundy-700 text-white px-6 py-3 text-base font-medium"
+          className="inline-flex self-center items-center justify-center rounded-full bg-green hover:bg-green-700 text-white px-6 py-3 text-base font-medium"
         >
           Start the Quiz
         </Link>
@@ -80,10 +80,10 @@ export function EmailGateClient() {
 
   return (
     <section className="flex flex-1 flex-col justify-center">
-      <p className="text-xs uppercase tracking-[0.18em] text-coral font-semibold mb-4 text-center">
+      <p className="text-xs uppercase tracking-[0.18em] text-grape font-semibold mb-4 text-center">
         Almost done!
       </p>
-      <h1 className="text-2xl sm:text-3xl font-semibold text-burgundy leading-snug mb-3 text-center">
+      <h1 className="text-2xl sm:text-3xl font-semibold text-ink leading-snug mb-3 text-center">
         Where should I send your personalized result?
       </h1>
       <p className="text-base text-ink/80 mb-8 text-center">
@@ -103,7 +103,7 @@ export function EmailGateClient() {
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-burgundy focus:outline-none focus:ring-2 focus:ring-burgundy/20"
+            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-green focus:outline-none focus:ring-2 focus:ring-green/20"
             placeholder="Jane"
           />
         </div>
@@ -118,13 +118,13 @@ export function EmailGateClient() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-burgundy focus:outline-none focus:ring-2 focus:ring-burgundy/20"
+            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-green focus:outline-none focus:ring-2 focus:ring-green/20"
             placeholder="you@example.com"
           />
         </div>
 
         {error && (
-          <p className="text-sm text-burgundy bg-card border border-burgundy/20 rounded-lg px-3 py-2">
+          <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
             {error}
           </p>
         )}
@@ -132,7 +132,7 @@ export function EmailGateClient() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-burgundy hover:bg-burgundy-700 disabled:bg-muted/50 text-white px-8 py-4 text-base font-medium transition-colors shadow-sm"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-green hover:bg-green-700 disabled:bg-muted/50 text-white px-8 py-4 text-base font-medium transition-colors shadow-sm"
         >
           {submitting ? "Sending..." : "Send Me My Results"}
         </button>
@@ -144,7 +144,7 @@ export function EmailGateClient() {
 
       <p className="mt-8 text-center text-xs text-muted">
         Answered {readAnswers().length} of {TOTAL_STEPS} questions.{" "}
-        <Link href="/quiz/8" className="underline hover:text-burgundy">
+        <Link href="/quiz/8" className="underline hover:text-green">
           Go back
         </Link>
       </p>

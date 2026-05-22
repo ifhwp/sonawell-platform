@@ -54,12 +54,12 @@ export function QuizStepClient({
       <ProgressBar step={question.step} total={totalSteps} />
 
       <div className="mt-6 flex items-center justify-between">
-        <p className="text-xs uppercase tracking-[0.18em] text-coral font-semibold">
+        <p className="text-xs uppercase tracking-[0.18em] text-grape font-semibold">
           Question {question.step} of {totalSteps}
         </p>
         <Link
           href={prevHref}
-          className="text-sm text-muted hover:text-burgundy transition-colors"
+          className="text-sm text-muted hover:text-green transition-colors"
         >
           ← Back
         </Link>
@@ -83,8 +83,8 @@ export function QuizStepClient({
                 }
                 className={`w-full text-left rounded-2xl border px-5 py-4 transition-all duration-150 ${
                   isSelected
-                    ? "border-burgundy bg-card shadow-sm"
-                    : "border-border bg-white hover:border-coral hover:shadow-sm"
+                    ? "border-green bg-card shadow-sm"
+                    : "border-border bg-white hover:border-green hover:shadow-sm"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -108,7 +108,7 @@ export function QuizStepClient({
             type="button"
             onClick={() => advance(selected)}
             disabled={selected.length === 0}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-burgundy hover:bg-burgundy-700 disabled:bg-muted/40 disabled:cursor-not-allowed text-white px-8 py-3 text-base font-medium transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-green hover:bg-green-700 disabled:bg-muted/40 disabled:cursor-not-allowed text-white px-8 py-3 text-base font-medium transition-colors"
           >
             Continue <span aria-hidden>→</span>
           </button>
@@ -130,7 +130,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
       aria-label={`Quiz progress: question ${step} of ${total}`}
     >
       <div
-        className="h-full bg-burgundy transition-all duration-300 ease-out"
+        className="h-full bg-green transition-all duration-300 ease-out"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -149,10 +149,10 @@ function SelectionIndicator({
       <span
         aria-hidden
         className={`mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-          selected ? "border-burgundy" : "border-muted/50"
+          selected ? "border-green" : "border-muted/50"
         }`}
       >
-        {selected && <span className="h-2.5 w-2.5 rounded-full bg-burgundy" />}
+        {selected && <span className="h-2.5 w-2.5 rounded-full bg-green" />}
       </span>
     );
   }
@@ -160,7 +160,7 @@ function SelectionIndicator({
     <span
       aria-hidden
       className={`mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 transition-colors ${
-        selected ? "border-burgundy bg-burgundy" : "border-muted/50 bg-white"
+        selected ? "border-green bg-green" : "border-muted/50 bg-white"
       }`}
     >
       {selected && (

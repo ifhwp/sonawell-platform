@@ -1,0 +1,16 @@
+# Project-private path blocklist -- TEMPLATE
+#
+# Copy this file to "private-paths.local" in the same folder:
+#
+#   cp .githooks/private-paths.local.example .githooks/private-paths.local
+#
+# Then list one path substring per line. The pre-commit hook blocks any
+# staged file whose path contains a listed substring. '#' starts a comment.
+#
+# private-paths.local is gitignored, so its contents stay on your machine
+# and never reach this PUBLIC repo.
+#
+# Example entries (replace with your own):
+#   internal-notes/
+#   private-docs/
+#   client-data/

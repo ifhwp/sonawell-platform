@@ -66,7 +66,7 @@ export function SiteFooter() {
                 About Us
               </a>
               <a
-                href={SITE}
+                href={`${SITE}/discovery-call`}
                 className="text-ink transition-colors hover:text-green"
               >
                 Workshops for HR teams

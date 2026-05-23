@@ -11,6 +11,9 @@ export type Answer = { questionId: string; optionIds: string[] };
 export type ScoringResult = {
   scores: Record<Archetype, number>;
   winner: Archetype;
+  runnerUp: Archetype;
+  margin: number;
+  tiedAtTop: boolean;
   redirectUnder38: boolean;
 };
 
@@ -35,7 +38,23 @@ export function scoreAnswers(answers: Answer[]): ScoringResult {
     }
   }
 
-  return { scores, winner: pickWinner(scores), redirectUnder38 };
+  const winner = pickWinner(scores);
+  const runnerUp = pickRunnerUp(scores, winner);
+  const margin = scores[winner] - scores[runnerUp];
+  const tiedAtTop = countAtTopScore(scores) > 1;
+  return { scores, winner, runnerUp, margin, tiedAtTop, redirectUnder38 };
+}
+
+export function scoreToRoute(
+  answers: Answer[],
+): { path: `/result/${Archetype}` | "/under-38"; archetype?: Archetype } {
+  const result = scoreAnswers(answers);
+  if (result.redirectUnder38) return { path: "/under-38" };
+  return { path: `/result/${result.winner}`, archetype: result.winner };
+}
+
+export function isArchetypeSlug(s: string): s is Archetype {
+  return (ARCHETYPES as readonly string[]).includes(s);
 }
 
 function addScore(into: Record<Archetype, number>, delta: Score): void {
@@ -55,4 +74,23 @@ function pickWinner(scores: Record<Archetype, number>): Archetype {
     }
   }
   return best;
+}
+
+function pickRunnerUp(
+  scores: Record<Archetype, number>,
+  winner: Archetype,
+): Archetype {
+  let best: Archetype | null = null;
+  for (const archetype of TIE_BREAKER) {
+    if (archetype === winner) continue;
+    if (best === null || scores[archetype] > scores[best]) {
+      best = archetype;
+    }
+  }
+  return best as Archetype;
+}
+
+function countAtTopScore(scores: Record<Archetype, number>): number {
+  const top = Math.max(...Object.values(scores));
+  return Object.values(scores).filter((s) => s === top).length;
 }

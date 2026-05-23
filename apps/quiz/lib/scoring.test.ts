@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { scoreAnswers, type Answer } from "./scoring";
+import {
+  isArchetypeSlug,
+  scoreAnswers,
+  scoreToRoute,
+  type Answer,
+} from "./scoring";
 
 function answer(qid: string, optId: string): Answer {
   return { questionId: qid, optionIds: [optId] };
@@ -125,5 +130,90 @@ describe("scoreAnswers", () => {
       { questionId: "q3-energy", optionIds: ["nonexistent"] },
     ]);
     expect(result.scores).toEqual({ hormone: 0, insulin: 0, cortisol: 0, "muscle-loss": 0 });
+  });
+});
+
+describe("ScoringResult derived fields", () => {
+  it("exposes runnerUp, margin, and tiedAtTop on a clear win", () => {
+    const result = scoreAnswers([
+      answer("q3-energy", "after-lunch"),
+      answer("q4-weight-pattern", "bloating"),
+      answer("q6-cravings", "sugar-pm"),
+      answer("q7-workout", "no-results"),
+    ]);
+    expect(result.winner).toBe("insulin");
+    expect(result.scores.insulin).toBe(8);
+    expect(result.margin).toBe(8);
+    expect(result.tiedAtTop).toBe(false);
+    expect(result.runnerUp).toBe("hormone");
+  });
+
+  it("flags tiedAtTop when two archetypes share the top score", () => {
+    const result = scoreAnswers([
+      answer("q3-energy", "wake-exhausted"),
+      answer("q4-weight-pattern", "belly"),
+    ]);
+    expect(result.winner).toBe("hormone");
+    expect(result.tiedAtTop).toBe(true);
+    expect(result.margin).toBe(0);
+    expect(result.runnerUp).toBe("cortisol");
+  });
+
+  it("all-zero scores: hormone wins, cortisol is runner-up, tied at top, margin 0", () => {
+    const result = scoreAnswers([]);
+    expect(result.winner).toBe("hormone");
+    expect(result.runnerUp).toBe("cortisol");
+    expect(result.margin).toBe(0);
+    expect(result.tiedAtTop).toBe(true);
+  });
+
+  it("computes margin as #1 minus #2 across mixed scores", () => {
+    const result = scoreAnswers([
+      answer("q3-energy", "wired-tired"),
+      answer("q4-weight-pattern", "belly"),
+      answer("q5-sleep", "wake-3am"),
+    ]);
+    expect(result.winner).toBe("cortisol");
+    expect(result.scores.cortisol).toBe(5);
+    expect(result.scores.hormone).toBe(1);
+    expect(result.runnerUp).toBe("hormone");
+    expect(result.margin).toBe(4);
+    expect(result.tiedAtTop).toBe(false);
+  });
+});
+
+describe("scoreToRoute", () => {
+  it("routes to /under-38 when under-38 is selected", () => {
+    expect(scoreToRoute([answer("q1-age", "under-38")])).toEqual({ path: "/under-38" });
+  });
+
+  it("routes to /result/<winner> for a normal completion", () => {
+    expect(
+      scoreToRoute([
+        answer("q3-energy", "after-lunch"),
+        answer("q4-weight-pattern", "bloating"),
+        answer("q6-cravings", "sugar-pm"),
+      ]),
+    ).toEqual({ path: "/result/insulin", archetype: "insulin" });
+  });
+
+  it("routes all-zero to /result/hormone (tie-break default)", () => {
+    expect(scoreToRoute([])).toEqual({ path: "/result/hormone", archetype: "hormone" });
+  });
+});
+
+describe("isArchetypeSlug", () => {
+  it("accepts each valid archetype slug", () => {
+    expect(isArchetypeSlug("hormone")).toBe(true);
+    expect(isArchetypeSlug("insulin")).toBe(true);
+    expect(isArchetypeSlug("cortisol")).toBe(true);
+    expect(isArchetypeSlug("muscle-loss")).toBe(true);
+  });
+
+  it("rejects unknown or malformed strings", () => {
+    expect(isArchetypeSlug("HORMONE")).toBe(false);
+    expect(isArchetypeSlug("")).toBe(false);
+    expect(isArchetypeSlug("under-38")).toBe(false);
+    expect(isArchetypeSlug("hormones")).toBe(false);
   });
 });

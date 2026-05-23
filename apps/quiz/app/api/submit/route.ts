@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { scoreAnswers, type Answer } from "@/lib/scoring";
 import { subscribeToKit } from "@/lib/kit";
+import { recordFailedLead } from "@/lib/lead-fallback";
 
 type SubmitBody = {
   firstName?: unknown;
@@ -31,8 +32,9 @@ export async function POST(request: Request) {
   const kit = await subscribeToKit({ email, firstName, archetype: winner });
   if (!kit.ok) {
     console.error("[submit] kit subscription failed:", kit.error);
-    // We still return success to the user — losing a Kit subscribe shouldn't block their result.
-    // The error is logged for monitoring.
+    // Durable fallback — capture the lead somewhere recoverable so a silent
+    // Kit failure does not lose it. We still return success to the user.
+    await recordFailedLead({ firstName, email, archetype: winner, reason: kit.error });
   }
 
   return NextResponse.json({ archetype: winner });

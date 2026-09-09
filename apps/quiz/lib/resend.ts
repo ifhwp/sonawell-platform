@@ -26,8 +26,10 @@ type CaptureResult = { ok: true } | { ok: false; error: string };
 //   RESEND_AUDIENCE_DONT_KNOW
 //
 // Optional:
-//   SITE_URL - base URL used in the result email link
-//              (default https://quiz.sonaliwellness.com)
+//   SITE_URL - base URL used in the result email link. When unset, falls
+//              back to Vercel's VERCEL_PROJECT_PRODUCTION_URL (the live
+//              production domain — switches automatically when a custom
+//              domain is added), then localhost for local dev.
 //
 // When RESEND_API_KEY is missing we no-op and log so local dev works without a key.
 export async function captureQuizLead(args: CaptureArgs): Promise<CaptureResult> {
@@ -73,7 +75,11 @@ async function sendResultEmail(
     return { ok: true };
   }
 
-  const base = process.env.SITE_URL || "https://quiz.sonaliwellness.com";
+  const base =
+    process.env.SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000");
   const url = `${base}/result/${args.resultType}`;
   const label = RESULT_LABELS[args.resultType];
   const name = escapeHtml(args.firstName);

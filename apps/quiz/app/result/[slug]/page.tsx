@@ -1,30 +1,21 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  ARCHETYPES,
-  ARCHETYPE_LABELS,
-  ARCHETYPE_SUMMARIES,
-  type Archetype,
-} from "@/lib/questions";
-import { ARCHETYPE_CONTENT } from "@/content/archetypes";
+import { RESULT_TYPES, RESULT_SUMMARIES, isResultType } from "@/lib/questions";
+import { RESULT_CONTENT } from "@/content/results";
 
 export function generateStaticParams() {
-  return ARCHETYPES.map((a) => ({ archetype: a }));
-}
-
-function isArchetype(s: string): s is Archetype {
-  return (ARCHETYPES as readonly string[]).includes(s);
+  return RESULT_TYPES.map((slug) => ({ slug }));
 }
 
 export default async function ResultPage({
   params,
 }: {
-  params: Promise<{ archetype: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { archetype } = await params;
-  if (!isArchetype(archetype)) notFound();
+  const { slug } = await params;
+  if (!isResultType(slug)) notFound();
 
-  const content = ARCHETYPE_CONTENT[archetype];
+  const content = RESULT_CONTENT[slug];
 
   return (
     <article className="flex flex-1 flex-col">
@@ -34,11 +25,10 @@ export default async function ResultPage({
       <h1 className="text-3xl sm:text-4xl font-semibold text-ink leading-tight">
         {content.headline}
       </h1>
-      <p className="mt-2 text-sm text-muted">{ARCHETYPE_LABELS[archetype]}</p>
 
       <div className="mt-6 rounded-2xl border border-card-border bg-card px-5 py-4">
         <p className="text-sm text-ink/80 leading-relaxed">
-          {ARCHETYPE_SUMMARIES[archetype]}
+          {RESULT_SUMMARIES[slug]}
         </p>
       </div>
 

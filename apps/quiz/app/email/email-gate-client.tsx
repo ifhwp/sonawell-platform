@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { clearQuizState, readAnswers, readContact, writeContact } from "@/lib/state";
-import { TOTAL_STEPS } from "@/lib/questions";
+import { TOTAL_STEPS, isResultType } from "@/lib/questions";
 
 export function EmailGateClient() {
   const router = useRouter();
@@ -52,9 +52,10 @@ export function EmailGateClient() {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? `Submit failed (${res.status})`);
       }
-      const data = (await res.json()) as { archetype: string };
+      const data = (await res.json()) as { result: string };
+      if (!isResultType(data.result)) throw new Error("Unexpected result from server.");
       clearQuizState();
-      router.push(`/result/${data.archetype}`);
+      router.push(`/result/${data.result}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setSubmitting(false);
@@ -87,7 +88,7 @@ export function EmailGateClient() {
         Where should I send your personalized result?
       </h1>
       <p className="text-base text-ink/80 mb-8 text-center">
-        Your result includes a custom 5-Habit Reset based on your archetype, plus a starting
+        Your result includes a custom 5-Habit Reset based on your answers, plus a starting
         plan for your first 7 days.
       </p>
 

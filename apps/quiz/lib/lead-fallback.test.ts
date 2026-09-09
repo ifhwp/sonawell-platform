@@ -5,7 +5,7 @@ const SAMPLE = {
   firstName: "Jane",
   email: "jane@example.com",
   archetype: "hormone" as const,
-  reason: "Kit 500",
+  reason: "Resend 500",
 };
 
 describe("recordFailedLead", () => {

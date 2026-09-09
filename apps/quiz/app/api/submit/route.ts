@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { scoreAnswers, type Answer } from "@/lib/scoring";
-import { subscribeToKit } from "@/lib/kit";
+import { resolveResultType, scoreAnswers, type Answer } from "@/lib/scoring";
+import { captureQuizLead } from "@/lib/resend";
 import { recordFailedLead } from "@/lib/lead-fallback";
 
 type SubmitBody = {
@@ -28,16 +28,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "answers required" }, { status: 400 });
   }
 
-  const { winner } = scoreAnswers(answers);
-  const kit = await subscribeToKit({ email, firstName, archetype: winner });
-  if (!kit.ok) {
-    console.error("[submit] kit subscription failed:", kit.error);
+  const scored = scoreAnswers(answers);
+  const winner = scored.winner;
+  const resultType = resolveResultType(scored);
+  const capture = await captureQuizLead({
+    email,
+    firstName,
+    archetype: winner,
+    resultType,
+  });
+  if (!capture.ok) {
+    console.error("[submit] resend capture failed:", capture.error);
     // Durable fallback — capture the lead somewhere recoverable so a silent
-    // Kit failure does not lose it. We still return success to the user.
-    await recordFailedLead({ firstName, email, archetype: winner, reason: kit.error });
+    // Resend failure does not lose it. We still return success to the user.
+    await recordFailedLead({ firstName, email, archetype: winner, reason: capture.error });
   }
 
-  return NextResponse.json({ archetype: winner });
+  return NextResponse.json({ archetype: winner, result: resultType });
 }
 
 function isValidEmail(s: string): boolean {

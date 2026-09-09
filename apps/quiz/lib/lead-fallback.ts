@@ -10,7 +10,7 @@ export type FailedLead = {
 type Kind = "slack" | "discord";
 
 /**
- * Persist a failed Kit subscription somewhere durable so the lead can be
+ * Persist a failed Resend capture somewhere durable so the lead can be
  * recovered. Posts to a Slack or Discord incoming webhook configured via:
  *
  *   FAILED_LEAD_WEBHOOK_URL   — the incoming webhook URL
@@ -52,7 +52,7 @@ export async function recordFailedLead(lead: FailedLead): Promise<void> {
 
 function buildPayload(kind: Kind, lead: FailedLead): Record<string, unknown> {
   const text =
-    `SonaWell quiz — Kit subscribe FAILED. Recover this lead manually.\n` +
+    `SonaWell quiz — Resend capture FAILED. Recover this lead manually.\n` +
     `Name: ${lead.firstName}\n` +
     `Email: ${lead.email}\n` +
     `Archetype: ${lead.archetype}\n` +

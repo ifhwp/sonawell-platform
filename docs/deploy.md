@@ -5,7 +5,7 @@
 **App:** `04-platform/apps/quiz/` (Next.js 16)
 
 Order matters: get it live on a `*.vercel.app` URL first, then add the
-custom domain, then wire Kit, then point Sonali at it.
+custom domain, then wire Resend, then point Sonali at it.
 
 ---
 
@@ -16,7 +16,7 @@ custom domain, then wire Kit, then point Sonali at it.
 ```bash
 cd ~/Code/ventures/sonawell/04-platform/apps/quiz
 npm install      # if you haven't already
-npm test         # 12 tests should pass
+npm test         # 28 tests should pass
 npm run build    # should finish with no TS errors
 ```
 
@@ -66,65 +66,74 @@ Walk the full happy path on the Vercel URL:
 - [ ] Pick "Under 38" → redirects to `/under-38` (skips email)
 - [ ] Go back to `/`, pick 45–50, walk through Q2–Q8
 - [ ] Email gate appears; submit with a test email + name
-- [ ] You land on a `/result/<archetype>` page
+- [ ] You land on a `/result/<slug>` page (e.g. `/result/always-tired`)
 - [ ] Refresh — page still renders (it's static)
 
-If Kit isn't configured yet, `/api/submit` logs a "would have subscribed"
+If Resend isn't configured yet, `/api/submit` logs a "would have captured"
 message to the Vercel function logs but still returns success. That's intentional.
 
 ---
 
-## Phase 2 — Kit (ConvertKit) account setup (~15 min, Sonali or Abhishek)
+## Phase 2 — Resend account setup (~15 min, Sonali or Abhishek)
 
-### 2.1 Account + form
+### 2.1 Account + domain verification
 
-1. Sign up / log in at https://app.kit.com.
-2. **Create a form** named "SonaWell Midlife Quiz". Inline or pop-up doesn't matter
-   — we use it as a subscribe target, not as a public form. Grab the numeric form id
-   from its URL (e.g. `kit.com/forms/1234567/edit` → id is `1234567`).
+1. Sign up / log in at https://resend.com.
+2. **Domains → Add Domain** → `sonaliwellness.com`. Resend shows DNS records
+   (SPF + DKIM) to add where the domain's DNS lives. The result email can't
+   send until this verifies — contacts still get captured in the meantime.
 
-### 2.2 Tags (one per archetype)
+### 2.2 Audience(s)
 
-In Subscribers → Tags, create exactly four tags. Tag IDs are numeric, visible
-in the URL when you click into a tag.
+Audiences → Create. Minimum setup is **one audience** ("SonaWell Quiz Leads")
+— its id is in the audience URL, used for `RESEND_AUDIENCE_ID`.
 
-| Tag name (suggested) | Used for env var |
+Optional but recommended for follow-up sequences: one audience per result
+type (Resend has no tags, so a per-cohort audience is how you target a
+broadcast at one result type):
+
+| Audience name (suggested) | Used for env var |
 |---|---|
-| `quiz-hormone-block` | `KIT_TAG_HORMONE` |
-| `quiz-insulin-block` | `KIT_TAG_INSULIN` |
-| `quiz-cortisol-block` | `KIT_TAG_CORTISOL` |
-| `quiz-muscle-loss-block` | `KIT_TAG_MUSCLE_LOSS` |
+| `quiz-not-myself` | `RESEND_AUDIENCE_NOT_MYSELF` |
+| `quiz-always-tired` | `RESEND_AUDIENCE_ALWAYS_TIRED` |
+| `quiz-overweight-and-bloated` | `RESEND_AUDIENCE_OVERWEIGHT_AND_BLOATED` |
+| `quiz-dont-know-how-i-feel` | `RESEND_AUDIENCE_DONT_KNOW` |
 
 ### 2.3 API key
 
-Settings → Advanced → API Key. Copy the value.
+API Keys → Create API Key (sending access + audiences). Copy the value —
+it's shown once.
 
-### 2.4 Set up the 4 welcome sequences
+### 2.4 Result email + follow-ups
 
-For each tag, create an automation that triggers when the tag is added →
-sends the matching archetype welcome sequence. Sequences are Sonali's content.
-The app doesn't care about them — it just adds the tag.
+The app itself sends the "here's your result" email via Resend on submit
+(from `RESEND_FROM`, linking back to the result page). Follow-up sequences
+are Broadcasts sent to the per-result-type audiences — Sonali's content,
+scheduled from the Resend dashboard.
 
 ---
 
 ## Phase 3 — Wire env vars on Vercel (~3 min)
 
 Project → Settings → Environment Variables. Add for **Production** (and
-optionally Preview if you want preview deploys to also subscribe):
+optionally Preview if you want preview deploys to also capture leads):
 
 ```
-KIT_API_KEY=<from 2.3>
-KIT_FORM_ID=<from 2.1>
-KIT_TAG_HORMONE=<from 2.2>
-KIT_TAG_INSULIN=<from 2.2>
-KIT_TAG_CORTISOL=<from 2.2>
-KIT_TAG_MUSCLE_LOSS=<from 2.2>
+RESEND_API_KEY=<from 2.3>
+RESEND_AUDIENCE_ID=<from 2.2>
+RESEND_FROM=Sonali <sonali@sonaliwellness.com>
+# optional per-cohort audiences (see 2.2)
+RESEND_AUDIENCE_NOT_MYSELF=
+RESEND_AUDIENCE_ALWAYS_TIRED=
+RESEND_AUDIENCE_OVERWEIGHT_AND_BLOATED=
+RESEND_AUDIENCE_DONT_KNOW=
 ```
 
 **Redeploy** after adding vars: Deployments → latest → ⋯ → Redeploy.
 
-Test on the `vercel.app` URL with a real email you can check. The subscriber
-should show up in Kit within a few seconds with the correct tag.
+Test on the `vercel.app` URL with a real email you can check. The contact
+should show up in the Resend audience within a few seconds, and the result
+email should arrive (once the domain is verified).
 
 ---
 
@@ -165,7 +174,7 @@ Visit `https://quiz.sonaliwellness.com` and walk the flow once more. Done.
 Send her:
 
 - The live URL: `https://quiz.sonaliwellness.com`
-- The link to update copy: `apps/quiz/content/archetypes.ts`
+- The link to update copy: `apps/quiz/content/results.ts`
   (the four `[Sonali to write — …]` placeholders)
 - The YouTube redirect URL TODO: `apps/quiz/app/under-38/page.tsx` line 4
 

@@ -139,16 +139,49 @@ export function getQuestion(step: number): Question | undefined {
   return QUESTIONS.find((q) => q.step === step);
 }
 
-export const ARCHETYPE_LABELS: Record<Archetype, string> = {
-  hormone: "Hormone Block",
-  insulin: "Insulin Block",
-  cortisol: "Cortisol Block",
-  "muscle-loss": "Muscle-Loss Block",
+// The four user-facing result types — the feeling in her own words, and
+// the URL slug she lands on. The internal Archetype keys stay physiological
+// because scoring, Kit tags, and env vars (KIT_TAG_*) are keyed on them.
+//
+// "dont-know-how-i-feel" is the open-ended result: it fires when muscle-loss
+// is the quiet winner OR when no single pattern clearly leads (mixed signals).
+export const RESULT_TYPES = [
+  "not-myself",
+  "always-tired",
+  "overweight-and-bloated",
+  "dont-know-how-i-feel",
+] as const;
+export type ResultType = (typeof RESULT_TYPES)[number];
+
+export function isResultType(s: string): s is ResultType {
+  return (RESULT_TYPES as readonly string[]).includes(s);
+}
+
+export const RESULT_LABELS: Record<ResultType, string> = {
+  "not-myself": "I don't feel myself",
+  "always-tired": "I always feel tired",
+  "overweight-and-bloated": "I feel overweight and bloated",
+  "dont-know-how-i-feel": "I just don't know how I feel",
 };
 
-export const ARCHETYPE_SUMMARIES: Record<Archetype, string> = {
-  hormone: "Perimenopause/menopause symptoms dominant — hot flashes, sleep disruption, cycle irregularity.",
-  insulin: "Blood sugar dysregulation — energy crashes, sugar cravings, belly weight, post-meal fatigue.",
-  cortisol: "Stress + burnout driver — wired-but-tired, cortisol-belly weight, can't switch off.",
-  "muscle-loss": "Sarcopenia + sedentary — feeling weak, slower metabolism, joint stiffness, lost tone.",
+// Which result page a decisive archetype win maps to. Muscle-loss maps to
+// the open-ended result — the quiet strength pattern that presents as
+// "I don't know how I feel" — which also catches mixed/flat scores.
+export const ARCHETYPE_RESULT: Record<Archetype, ResultType> = {
+  hormone: "not-myself",
+  cortisol: "always-tired",
+  insulin: "overweight-and-bloated",
+  "muscle-loss": "dont-know-how-i-feel",
+};
+
+// The reveal under the feeling headline: the pattern her answers point to.
+export const RESULT_SUMMARIES: Record<ResultType, string> = {
+  "not-myself":
+    "Your answers point to a hormonal pattern — sleep disruption, cycle changes, a body playing by new rules.",
+  "always-tired":
+    "Your answers point to a stress pattern — wired-but-tired, can't switch off, weight settling at the middle.",
+  "overweight-and-bloated":
+    "Your answers point to a blood-sugar pattern — energy crashes, sugar pull, bloat that comes and goes.",
+  "dont-know-how-i-feel":
+    "Your answers don't point to one loud pattern — the signals are mixed. That's a real result: the quiet driver underneath is often strength, and it's the most fixable place to start.",
 };

@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
-  isArchetypeSlug,
+  resolveResultType,
   scoreAnswers,
   scoreToRoute,
   type Answer,
 } from "./scoring";
+import { isResultType } from "./questions";
 
 function answer(qid: string, optId: string): Answer {
   return { questionId: qid, optionIds: [optId] };
@@ -187,33 +188,66 @@ describe("scoreToRoute", () => {
     expect(scoreToRoute([answer("q1-age", "under-38")])).toEqual({ path: "/under-38" });
   });
 
-  it("routes to /result/<winner> for a normal completion", () => {
+  it("routes a decisive winner to its feeling slug", () => {
     expect(
       scoreToRoute([
         answer("q3-energy", "after-lunch"),
         answer("q4-weight-pattern", "bloating"),
         answer("q6-cravings", "sugar-pm"),
       ]),
-    ).toEqual({ path: "/result/insulin", archetype: "insulin" });
+    ).toEqual({
+      path: "/result/overweight-and-bloated",
+      archetype: "insulin",
+      resultType: "overweight-and-bloated",
+    });
   });
 
-  it("routes all-zero to /result/hormone (tie-break default)", () => {
-    expect(scoreToRoute([])).toEqual({ path: "/result/hormone", archetype: "hormone" });
+  it("routes all-zero (flat) scores to the open-ended result", () => {
+    expect(scoreToRoute([])).toEqual({
+      path: "/result/dont-know-how-i-feel",
+      archetype: "hormone",
+      resultType: "dont-know-how-i-feel",
+    });
   });
 });
 
-describe("isArchetypeSlug", () => {
-  it("accepts each valid archetype slug", () => {
-    expect(isArchetypeSlug("hormone")).toBe(true);
-    expect(isArchetypeSlug("insulin")).toBe(true);
-    expect(isArchetypeSlug("cortisol")).toBe(true);
-    expect(isArchetypeSlug("muscle-loss")).toBe(true);
+describe("resolveResultType", () => {
+  it("maps each decisive archetype win to its feeling result", () => {
+    const cases: Array<[Answer[], string]> = [
+      [[answer("q2-cycle", "irregular"), answer("q3-energy", "wake-exhausted")], "not-myself"],
+      [[answer("q3-energy", "wired-tired"), answer("q5-sleep", "racing-mind")], "always-tired"],
+      [[answer("q3-energy", "after-lunch"), answer("q6-cravings", "sugar-pm")], "overweight-and-bloated"],
+      [[answer("q3-energy", "stamina-gone"), answer("q7-workout", "havent")], "dont-know-how-i-feel"],
+    ];
+    for (const [answers, expected] of cases) {
+      expect(resolveResultType(scoreAnswers(answers))).toBe(expected);
+    }
   });
 
-  it("rejects unknown or malformed strings", () => {
-    expect(isArchetypeSlug("HORMONE")).toBe(false);
-    expect(isArchetypeSlug("")).toBe(false);
-    expect(isArchetypeSlug("under-38")).toBe(false);
-    expect(isArchetypeSlug("hormones")).toBe(false);
+  it("sends a tie at the top to the open-ended result", () => {
+    const result = scoreAnswers([
+      answer("q3-energy", "wired-tired"),
+      answer("q6-cravings", "cycle-cravings"),
+    ]);
+    expect(result.tiedAtTop).toBe(true);
+    expect(resolveResultType(result)).toBe("dont-know-how-i-feel");
+  });
+
+  it("sends a narrow lead (margin < 2) to the open-ended result", () => {
+    const result = scoreAnswers([
+      answer("q5-sleep", "wake-3am"),
+      answer("q3-energy", "wake-exhausted"),
+    ]);
+    expect(result.winner).toBe("hormone");
+    expect(result.margin).toBe(2);
+    expect(resolveResultType(result)).toBe("not-myself");
+
+    const narrow = scoreAnswers([answer("q5-sleep", "wake-3am"), answer("q7-workout", "sore-3days")]);
+    expect(narrow.margin).toBeLessThan(2);
+    expect(resolveResultType(narrow)).toBe("dont-know-how-i-feel");
+  });
+
+  it("every resolved result is a valid page slug", () => {
+    expect(isResultType(resolveResultType(scoreAnswers([])))).toBe(true);
   });
 });

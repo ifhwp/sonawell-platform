@@ -1,8 +1,10 @@
 import {
   ARCHETYPES,
+  ARCHETYPE_RESULT,
   QUESTIONS,
   TIE_BREAKER,
   type Archetype,
+  type ResultType,
   type Score,
 } from "./questions";
 
@@ -45,16 +47,29 @@ export function scoreAnswers(answers: Answer[]): ScoringResult {
   return { scores, winner, runnerUp, margin, tiedAtTop, redirectUnder38 };
 }
 
-export function scoreToRoute(
-  answers: Answer[],
-): { path: `/result/${Archetype}` | "/under-38"; archetype?: Archetype } {
-  const result = scoreAnswers(answers);
-  if (result.redirectUnder38) return { path: "/under-38" };
-  return { path: `/result/${result.winner}`, archetype: result.winner };
+// A single question is worth 2 points. A winner leading by less than one
+// full question is a mixed read, not a verdict — send her to the
+// open-ended result instead of forcing a call.
+export const CLEAR_WINNER_MARGIN = 2;
+
+export function resolveResultType(result: ScoringResult): ResultType {
+  if (result.tiedAtTop || result.margin < CLEAR_WINNER_MARGIN) {
+    return "dont-know-how-i-feel";
+  }
+  return ARCHETYPE_RESULT[result.winner];
 }
 
-export function isArchetypeSlug(s: string): s is Archetype {
-  return (ARCHETYPES as readonly string[]).includes(s);
+export function scoreToRoute(
+  answers: Answer[],
+): { path: string; archetype?: Archetype; resultType?: ResultType } {
+  const result = scoreAnswers(answers);
+  if (result.redirectUnder38) return { path: "/under-38" };
+  const resultType = resolveResultType(result);
+  return {
+    path: `/result/${resultType}`,
+    archetype: result.winner,
+    resultType,
+  };
 }
 
 function addScore(into: Record<Archetype, number>, delta: Score): void {

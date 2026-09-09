@@ -10,8 +10,9 @@ export default function LandingPage() {
         What&rsquo;s Really Blocking Your Midlife Weight &amp; Energy?
       </h1>
       <p className="text-lg leading-relaxed text-ink/80 mb-8">
-        Most midlife women are solving the wrong problem. This 60-second quiz identifies
-        which of the 4 midlife blocks is running the show &mdash; and gives you a
+        &ldquo;I don&rsquo;t feel myself.&rdquo; &ldquo;I always feel tired.&rdquo;
+        &ldquo;I feel overweight and bloated.&rdquo; If any of that sounds like you,
+        this 60-second quiz finds the pattern behind it &mdash; and gives you a
         personalized starting point.
       </p>
 

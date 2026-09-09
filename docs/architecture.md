@@ -60,21 +60,25 @@ the parent `ventures/`).
 - Free tier handles the projected traffic easily (lead-magnet, not consumer
   app).
 
-### D5. Email: Kit (formerly ConvertKit) via v3 API
+### D5. Email: Resend via REST API
 
-Server-side subscribe + archetype tag on quiz submission.
+Server-side lead capture (audience contact) + result email on quiz submission.
 
-- See `apps/quiz/lib/kit.ts` for env vars: `KIT_API_KEY`, `KIT_FORM_ID`, and
-  one tag id per archetype.
-- Kit is the **system of record** for leads. No local DB at v1.
+- See `apps/quiz/lib/resend.ts` for env vars: `RESEND_API_KEY`,
+  `RESEND_AUDIENCE_ID`, `RESEND_FROM`, and optional per-result-type audience
+  ids (Resend has no tags; a dedicated audience per result type is how a
+  broadcast targets one cohort).
+- Resend is the **system of record** for leads. No local DB at v1.
+- The app sends the "here's your result" email itself (Resend send API) —
+  there is no ESP automation triggering it.
 - Local dev works without keys — the call is no-op'd with a console log.
-- If Kit fails, we log and **still return success** to the user — losing a
-  subscribe shouldn't block their result.
+- If Resend fails, we log and **still return success** to the user — losing a
+  capture shouldn't block their result.
 
 ### D6. State: URL-driven flow + sessionStorage
 
 - Quiz progress is in the URL (`/quiz/1`, `/quiz/2`, …, `/quiz/8`,
-  `/email`, `/result/[archetype]`). Back-button works.
+  `/email`, `/result/[slug]`). Back-button works.
 - Per-question answers persist in `sessionStorage` (`sonawell-quiz-answers`).
 - No cookies, no localStorage, no DB.
 - On result page navigation, sessionStorage is cleared.
@@ -82,9 +86,13 @@ Server-side subscribe + archetype tag on quiz submission.
 ### D7. Scoring is a pure function
 
 `lib/scoring.ts:scoreAnswers(answers)` takes the raw answers and returns
-`{ scores, winner, redirectUnder38 }`. No I/O, fully unit-tested in
-`lib/scoring.test.ts` (12 tests covering each archetype, tie-breakers, the
-under-38 path, and unknown/malformed input).
+`{ scores, winner, margin, tiedAtTop, redirectUnder38 }`. On top of it,
+`resolveResultType` maps the scores to one of four feeling-first result pages
+— a decisive hormone/cortisol/insulin win maps to its feeling page, while a
+muscle-loss win, a tie, or a narrow margin (< one question's worth) lands on
+the open-ended "I just don't know how I feel" result. No I/O, fully
+unit-tested in `lib/scoring.test.ts` (28 tests covering each archetype,
+result resolution, tie-breakers, the under-38 path, and malformed input).
 
 Run with `npm test`.
 
@@ -95,8 +103,8 @@ Sonali's exact words"), AI does **not** generate medical guidance.
 
 - AI is used at **build time** only (this repo was scaffolded inside Claude
   Code).
-- The 4 archetype result pages are hand-authored copy in
-  `content/archetypes.ts` — currently placeholder, to be filled by Sonali.
+- The 4 result pages are hand-authored copy in
+  `content/results.ts` — currently placeholder, to be filled by Sonali.
 - **Reserved for v2 (optional):** personalize only the result-page *intro*
   using first name + Q8 "what hasn't worked" multi-select. Hand-written
   guidance below stays untouched. Cached, bounded surface area.
@@ -124,16 +132,16 @@ statically generated at build time. 19 routes total, 17 static, 1 dynamic,
           page.tsx
           email-gate-client.tsx    ← client: form + /api/submit
         under-38/page.tsx
-        result/[archetype]/page.tsx
-        api/submit/route.ts        ← scoring + Kit
+        result/[slug]/page.tsx
+        api/submit/route.ts        ← scoring + Resend
       lib/
         questions.ts               ← typed quiz data, single source of truth
-        scoring.ts                 ← pure scoring fn
-        scoring.test.ts            ← vitest tests (12 cases)
+        scoring.ts                 ← pure scoring + result resolution
+        scoring.test.ts            ← vitest tests (28 cases)
         state.ts                   ← sessionStorage client helpers
-        kit.ts                     ← Kit/ConvertKit v3 API client
+        resend.ts                  ← Resend API client (contacts + result email)
       content/
-        archetypes.ts              ← Sonali-editable result copy
+        results.ts                 ← Sonali-editable result copy
       package.json
       tsconfig.json
   docs/
@@ -164,19 +172,19 @@ Sonali / brand to replace once `_brand/visual-system/` ships canonical tokens.
 
 ## Open items before launch
 
-1. **Sonali writes the 4 archetype result pages** — `5-Habit Reset` + `first 7 days`
-   + `closing` per archetype. Replace `[Sonali to write — …]` placeholders in
-   `content/archetypes.ts`.
+1. **Sonali writes the 4 result pages** — `5-Habit Reset` + `first 7 days`
+   + `closing` per result type. Replace `[Sonali to write — …]` placeholders in
+   `content/results.ts`.
 2. **Sonali / Abhishek confirms YouTube redirect URL** in `app/under-38/page.tsx`
    (currently `https://www.youtube.com/@sonaliwellness` — verify).
-3. **Kit account setup:** create the form, create the 4 archetype tags, grab
-   the IDs, set env vars on Vercel.
+3. **Resend account setup:** verify the sending domain, create the audience(s),
+   grab the IDs, set env vars on Vercel.
 4. **DNS:** add CNAME `quiz` → Vercel target on `sonaliwellness.com`.
 5. **Vercel project:** import repo, set root to `apps/quiz/`, add env vars.
 
 ## Out of scope for v1
 
-- Database / lead storage beyond Kit
+- Database / lead storage beyond Resend
 - A/B testing infrastructure
 - Analytics beyond Vercel Web Analytics (already free, opt-in via dashboard)
 - Multi-language (Sonali's Marathi venture `sonapurna` is separate)
@@ -190,6 +198,6 @@ Sonali / brand to replace once `_brand/visual-system/` ships canonical tokens.
 cd sonawell/04-platform/apps/quiz
 npm install
 npm run dev          # local at http://localhost:3000
-npm test             # 12 scoring tests
+npm test             # 28 scoring + fallback tests
 npm run build        # production build
 ```

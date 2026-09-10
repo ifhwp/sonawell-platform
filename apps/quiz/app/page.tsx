@@ -24,7 +24,7 @@ export default function LandingPage() {
       </Link>
 
       <p className="mt-8 text-sm text-muted">
-        Built by Sonali Surve, DTR · 60 seconds · 8 questions
+        Built by Sonali, Registered DT · 60 seconds · 8 questions
       </p>
     </section>
   );

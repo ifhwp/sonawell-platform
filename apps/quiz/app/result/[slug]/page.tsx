@@ -19,7 +19,7 @@ export default async function ResultPage({
 
   return (
     <article className="flex flex-1 flex-col">
-      <p className="text-xs uppercase tracking-[0.18em] text-grape font-semibold mb-3">
+      <p className="text-xs uppercase tracking-[0.18em] text-muted font-semibold mb-3">
         Your result
       </p>
       <h1 className="text-3xl sm:text-4xl font-semibold text-ink leading-tight">
@@ -64,7 +64,7 @@ export default async function ResultPage({
         </p>
         <Link
           href="/"
-          className="text-sm text-green hover:text-green-700 underline"
+          className="text-sm text-ink hover:text-black underline"
         >
           Take the quiz again
         </Link>

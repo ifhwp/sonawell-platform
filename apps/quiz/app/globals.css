@@ -1,17 +1,13 @@
 @import "tailwindcss";
 
+/* Monochrome theme: white surfaces, black ink, gray support tones. */
 @theme inline {
   --color-ink: #1c1c1c;
   --color-muted: #5c5c5c;
   --color-bg: #ffffff;
-  --color-card: #f3ebf9;
-  --color-card-border: #e7dcf3;
-  --color-mint: #e4f7f0;
-  --color-green: #268060;
-  --color-green-700: #1f6a4f;
-  --color-purple: #c8a5e4;
-  --color-grape: #6b4a93;
-  --color-border: #ddd9e1;
+  --color-card: #f5f5f5;
+  --color-card-border: #e5e5e5;
+  --color-border: #dedede;
   --font-sans: var(--font-sans);
 }
 

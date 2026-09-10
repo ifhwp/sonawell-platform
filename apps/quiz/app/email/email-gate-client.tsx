@@ -71,7 +71,7 @@ export function EmailGateClient() {
         </p>
         <Link
           href="/"
-          className="inline-flex self-center items-center justify-center rounded-full bg-green hover:bg-green-700 text-white px-6 py-3 text-base font-medium"
+          className="inline-flex self-center items-center justify-center rounded-full bg-ink hover:bg-black text-white px-6 py-3 text-base font-medium"
         >
           Start the Quiz
         </Link>
@@ -81,7 +81,7 @@ export function EmailGateClient() {
 
   return (
     <section className="flex flex-1 flex-col justify-center">
-      <p className="text-xs uppercase tracking-[0.18em] text-grape font-semibold mb-4 text-center">
+      <p className="text-xs uppercase tracking-[0.18em] text-muted font-semibold mb-4 text-center">
         Almost done!
       </p>
       <h1 className="text-2xl sm:text-3xl font-semibold text-ink leading-snug mb-3 text-center">
@@ -104,7 +104,7 @@ export function EmailGateClient() {
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-green focus:outline-none focus:ring-2 focus:ring-green/20"
+            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
             placeholder="Jane"
           />
         </div>
@@ -119,7 +119,7 @@ export function EmailGateClient() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-green focus:outline-none focus:ring-2 focus:ring-green/20"
+            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
             placeholder="you@example.com"
           />
         </div>
@@ -133,7 +133,7 @@ export function EmailGateClient() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-green hover:bg-green-700 disabled:bg-muted/50 text-white px-8 py-4 text-base font-medium transition-colors shadow-sm"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-ink hover:bg-black disabled:bg-muted/50 text-white px-8 py-4 text-base font-medium transition-colors shadow-sm"
         >
           {submitting ? "Sending..." : "Send Me My Results"}
         </button>
@@ -145,7 +145,7 @@ export function EmailGateClient() {
 
       <p className="mt-8 text-center text-xs text-muted">
         Answered {readAnswers().length} of {TOTAL_STEPS} questions.{" "}
-        <Link href="/quiz/8" className="underline hover:text-green">
+        <Link href="/quiz/8" className="underline hover:text-ink">
           Go back
         </Link>
       </p>

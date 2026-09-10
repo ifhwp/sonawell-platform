@@ -19,12 +19,12 @@ export function SiteHeader() {
           </span>
         </a>
         <nav className="flex items-center gap-7 text-sm font-medium">
-          <Link href="/" className="text-ink transition-colors hover:text-green">
+          <Link href="/" className="text-ink transition-colors hover:text-ink">
             Quiz
           </Link>
           <a
             href={`${SITE}/about-us`}
-            className="text-ink transition-colors hover:text-green"
+            className="text-ink transition-colors hover:text-ink"
           >
             About Us
           </a>

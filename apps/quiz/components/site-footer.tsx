@@ -50,37 +50,37 @@ export function SiteFooter() {
 
           <div className="flex gap-12 sm:gap-16">
             <nav className="flex flex-col gap-2.5 text-sm">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-grape">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">
                 Explore
               </p>
               <Link
                 href="/"
-                className="text-ink transition-colors hover:text-green"
+                className="text-ink transition-colors hover:text-ink"
               >
                 Quiz
               </Link>
               <a
                 href={`${SITE}/about-us`}
-                className="text-ink transition-colors hover:text-green"
+                className="text-ink transition-colors hover:text-ink"
               >
                 About Us
               </a>
               <a
                 href={`${SITE}/discovery-call`}
-                className="text-ink transition-colors hover:text-green"
+                className="text-ink transition-colors hover:text-ink"
               >
                 Workshops for HR teams
               </a>
               <a
                 href={`${SITE}/pages/cookie-policy`}
-                className="text-ink transition-colors hover:text-green"
+                className="text-ink transition-colors hover:text-ink"
               >
                 Cookie Policy
               </a>
             </nav>
 
             <div className="flex flex-col gap-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-grape">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">
                 Follow
               </p>
               <div className="flex gap-3">
@@ -91,7 +91,7 @@ export function SiteFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={s.label}
-                    className="text-muted transition-colors hover:text-green"
+                    className="text-muted transition-colors hover:text-ink"
                   >
                     <svg
                       viewBox="0 0 24 24"
